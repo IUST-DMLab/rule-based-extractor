@@ -1,0 +1,11 @@
+﻿
+(?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] (?$object [{ner:/.+City.+/}]+)   [{word:/به/}]? (?$predicate [{word:/دنیا|متولد|زاییده|جهان/}] [{word:/آمد|شد|گشود/}])
+(?$subject [{ner:/.+Person.+/}]+) (?$predicate [{word:/روابط عمومی|مدیر|رئیس|رئیس کل|دبیرکل|وزیر|مدیرعامل|عضو|سفیر|سفیر|شهردار|استاندار|فرماندار|بخشدار|دهیار|استاد|رئیس/}]) [{word:/.+/}]* (?$object [{ner:/.+City.*|.+Country.*|.+Organ.*/}]+) [{word:/.+/}]+
+(?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] (?$object [{ner:/.+City/}]+) (?$predicate [{word:/چشم/}] [{word:/به/}] [{word:/جهان/}] [{word:/گشود/}])
+(?$subject [{ner:/.+Person.+/}]+) [{word:/.+/}]+ (?$object [{ner:/.+Timeperiod.+/}]+)   [{word:/به/}]? (?$predicate [{word:/دنیا|متولد|زاییده|جهان/}] [{word:/آمد|شد|گشود/}])
+(?$subject [{ner:/.+Person.+/}]+) [{word:/.+/}]+ (?$object [{ner:/.+Timeperiod.+/}]+) (?$predicate [{word:/چشم/}] [{word:/به/}] [{word:/جهان/}] [{word:/گشود/}])
+(?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] (?$object [{word:/سن/}] [{word:/\d+/}] [{word:/سالگی/}]) (?$predicate [{word:/فوت|چشم/}]? [{word:/از/}]? [{word:/جهان/}]?  [{word:/کرد|فروبست|درگذشت/}])
+(?$subject [{ner:/.+Person.+/}]+) (?$predicate [{word:/سردبیر|دبیر|نویسنده|ناشر/}]) [{word:/.+/}]+ (?$object [{ner:/.+Newspaper.+/}]) [{word:/.+/}]+
+(?$subject [{ner:/.+Sportsteam.+|.+Country.*|.+Teamsport.*/}]+) [{word:/.+/}]* [{word:/به|با/}]  [{word:/.+/}]* (?$object [{ner:/.+Sportsteam.+|.+Country.*|.+Teamsport.*/}]+) [{word:/.+/}]*(?$predicate [{word:/دیدار/}])
+(?$subject [{ner:/.+Sportsteam.+|.+Country.*|.+Teamsport.*/}]+) [{word:/.+/}]* [{word:/به/}] (?$predicate [{word:/مصاف/}])  [{word:/.+/}]* (?$object [{ner:/.+Sportsteam.+|.+Country.*|.+Teamsport.*/}]+) [{word:/.+/}]*
+(?$subject [{ner:/.+Sportsteam.+|.+Country.*|.+Teamsport.*/}&&{pos:/.*/}]+)  [{word:/.+/}]* [{word:/در/}]  [{word:/.+/}]* (?$object [{ner:/.+Place.+|.+Stadium.*/}]+) [{word:/.+/}]*(?$predicate [{word:/دیدار/}])
