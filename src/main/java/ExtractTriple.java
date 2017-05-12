@@ -187,8 +187,10 @@ public class ExtractTriple {
     }
 
     public static void main(String[] args) {
-        String inputPath = args[0].toString();
-        String outputPath = args[1].toString();
+
+        String inputPath ="D://inputText.txt";// args[0].toString();
+        String outputPath ="D://outputTxt.txt";// args[1].toString();
+
         List<String> lines = null;
         try {
             lines = FileUtils.readLines(new File(inputPath), "UTF-8");
