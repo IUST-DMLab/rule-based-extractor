@@ -1,5 +1,4 @@
-﻿
-(?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] (?$object [{ner:/.+City.+/}]+)   [{word:/به/}]? (?$predicate [{word:/دنیا|متولد|زاییده|جهان/}] [{word:/آمد|شد|گشود/}])
+﻿(?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] (?$object [{ner:/.+City.+/}]+)   [{word:/به/}]? (?$predicate [{word:/دنیا|متولد|زاییده|جهان/}] [{word:/آمد|شد|گشود/}])
 (?$subject [{ner:/.+Person.+/}]+) (?$predicate [{word:/روابط عمومی|مدیر|رئیس|رئیس کل|دبیرکل|وزیر|مدیرعامل|عضو|سفیر|سفیر|شهردار|استاندار|فرماندار|بخشدار|دهیار|استاد|رئیس/}]) [{word:/.+/}]* (?$object [{ner:/.+City.*|.+Country.*|.+Organ.*/}]+) [{word:/.+/}]+
 (?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] (?$object [{ner:/.+City/}]+) (?$predicate [{word:/چشم/}] [{word:/به/}] [{word:/جهان/}] [{word:/گشود/}])
 (?$subject [{ner:/.+Person.+/}]+) [{word:/.+/}]+ (?$object [{ner:/.+Timeperiod.+/}]+)   [{word:/به/}]? (?$predicate [{word:/دنیا|متولد|زاییده|جهان/}] [{word:/آمد|شد|گشود/}])

@@ -1,3 +1,5 @@
+package ir.ac.iust.dml.kg.raw.rulebased;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -9,7 +11,6 @@ import edu.stanford.nlp.ling.tokensregex.TokenSequencePattern;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.util.CoreMap;
 import ir.ac.iust.dml.kg.raw.TextProcess;
-import ir.ac.iust.dml.kg.raw.coreference.CorefUtility;
 import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
 import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
 import org.apache.commons.io.FileUtils;
@@ -26,6 +27,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,21 +53,21 @@ public class ExtractTriple {
     final List<TokenSequencePattern> patterns;
 
 
-    ExtractTriple() {
+    ExtractTriple(String rulesPath, String predicatesPath) throws IOException {
         client = new ExtractorClient("http://194.225.227.161:8094");
-        rules = new CorefUtility().readListedFile(ExtractTriple.class, "/tripleRules.txt");
+        rules = Files.readAllLines(Paths.get(rulesPath), Charset.forName("UTF-8"));
         rules.remove(0);
         patterns = new ArrayList<TokenSequencePattern>();
         Env environment = TokenSequencePattern.getNewEnv();
         for (String rule : rules) {
             patterns.add(TokenSequencePattern.compile(environment, rule));
         }
-        dictionary = fillPredictDictionary();
+        dictionary = fillPredictDictionary(predicatesPath);
         this.address = "http://194.225.227.161:8091";
     }
 
-    private Map<String, String> fillPredictDictionary() {
-        List<String> predictionList = new CorefUtility().readListedFile(ExtractTriple.class, "/predictMap.txt");
+    private Map<String, String> fillPredictDictionary(String predicatesPath) throws IOException {
+        List<String> predictionList = Files.readAllLines(Paths.get(predicatesPath), Charset.forName("UTF-8"));
         Map<String, String> dictionary = new HashMap<String, String>();
         for (String line : predictionList) {
             String[] strs = line.split(":");
@@ -118,8 +122,8 @@ public class ExtractTriple {
     private String getMatchedResourceType(MatchedResource matchedResource) {
         StringBuilder builder = new StringBuilder();
         matchedResource.getResource().getClassTree().forEach(it ->
-                builder.append(it.replace("fkgo:", "").replace("http://fkg.iust.ac.ir/ontology", ""))
-                        .append(',')
+            builder.append(it.replace("fkgo:", "").replace("http://fkg.iust.ac.ir/ontology", ""))
+                .append(',')
         );
         if (builder.length() > 0) builder.setLength(builder.length() - 1);
         return builder.toString();
@@ -143,9 +147,9 @@ public class ExtractTriple {
         List<String> predicates = new ArrayList<String>();
         try {
             final HttpGet request = new HttpGet(
-                    address + "/rs/v1/triples/search?subject="
-                            + "http://fkg.iust.ac.ir/resources/" + URLEncoder.encode(subject.replace(" ", "_"), "UTF-8") + "&object="
-                            + "http://fkg.iust.ac.ir/resources/" + URLEncoder.encode(object.replace(" ", "_"), "UTF-8") + "&page=0&pageSize=10"
+                address + "/rs/v1/triples/search?subject="
+                    + "http://fkg.iust.ac.ir/resources/" + URLEncoder.encode(subject.replace(" ", "_"), "UTF-8") + "&object="
+                    + "http://fkg.iust.ac.ir/resources/" + URLEncoder.encode(object.replace(" ", "_"), "UTF-8") + "&page=0&pageSize=10"
             );
             request.addHeader("accept", "application/json");
             builder.build();
@@ -186,10 +190,24 @@ public class ExtractTriple {
         return triples;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        String inputPath ="D://inputText.txt";// args[0].toString();
-        String outputPath ="D://outputTxt.txt";// args[1].toString();
+        String inputPath = "inputText.txt";
+        String outputPath = "outputTxt.txt";
+        String rulesPath = "tripleRules.txt";
+        String predicatesPath = "predicates.txt";
+
+        if (args.length > 0) inputPath = args[0];
+        if (args.length > 1) inputPath = args[1];
+        if (args.length > 2) rulesPath = args[2];
+        if (args.length > 3) predicatesPath = args[3];
+
+        if (Files.notExists(Paths.get(inputPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
+        if (Files.notExists(Paths.get(rulesPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
+        if (Files.notExists(Paths.get(predicatesPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/predicates.txt"), Paths.get(predicatesPath));
 
         List<String> lines = null;
         try {
@@ -201,7 +219,7 @@ public class ExtractTriple {
         lines.remove(0);
         List<Triple> tripleList = new ArrayList<Triple>();
         TextProcess tp = new TextProcess();
-        ExtractTriple extractTriple = new ExtractTriple();
+        ExtractTriple extractTriple = new ExtractTriple(rulesPath, predicatesPath);
         for (String line : lines) {
             Annotation annotation = new Annotation(line);
             tp.preProcess(annotation);
@@ -212,6 +230,7 @@ public class ExtractTriple {
 
         String tripleJsons = generateTripleJson(tripleList);
         try {
+            System.out.println(new File(outputPath).toPath().toAbsolutePath());
             FileUtils.write(new File(outputPath), tripleJsons);
         } catch (IOException e) {
             e.printStackTrace();

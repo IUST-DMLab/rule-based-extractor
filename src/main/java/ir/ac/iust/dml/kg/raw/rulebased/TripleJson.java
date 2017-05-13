@@ -1,3 +1,5 @@
+package ir.ac.iust.dml.kg.raw.rulebased;
+
 import org.joda.time.DateTime;
 
 /**
@@ -6,8 +8,7 @@ import org.joda.time.DateTime;
  * @since 5/11/17 5:10 PM
  */
 public class TripleJson {
-    TripleJson()
-    {
+    TripleJson() {
         this.template_name=null;
         this.template_type=null;
         this.version= DateTime.now().toDate().toString();

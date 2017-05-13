@@ -1,3 +1,5 @@
+package ir.ac.iust.dml.kg.raw.rulebased;
+
 /**
  * @author Mohammad Abdous md.abdous@gmail.com
  * @version 1.1.0
@@ -27,8 +29,6 @@ public class Triple {
     public void setSubjectUri(String subjectUri) {
         this.subjectUri = subjectUri;
     }
-
-
 
 
     public String getSentence() {
@@ -62,8 +62,8 @@ public class Triple {
     public void setPredicate(String predicate) {
         this.predicate = predicate;
     }
-    public String toString()
-    {
+
+    public String toString() {
         return "("+ subject+","+predicate+","+object+")";
     }
 }
