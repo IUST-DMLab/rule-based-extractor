@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -53,23 +52,22 @@ public class ExtractTriple {
     final List<TokenSequencePattern> patterns;
 
 
-    ExtractTriple(String rulesPath, String predicatesPath) throws IOException {
+  ExtractTriple(List<String> rules, List<String> predictionList) throws IOException {
         client = new ExtractorClient("http://194.225.227.161:8094");
-        rules = Files.readAllLines(Paths.get(rulesPath), Charset.forName("UTF-8"));
-        rules.remove(0);
+    this.rules = rules;
         patterns = new ArrayList<TokenSequencePattern>();
         Env environment = TokenSequencePattern.getNewEnv();
         for (String rule : rules) {
+          System.out.println(rule);
             patterns.add(TokenSequencePattern.compile(environment, rule));
         }
-        dictionary = fillPredictDictionary(predicatesPath);
+    dictionary = fillPredictDictionary(predictionList);
         this.address = "http://194.225.227.161:8091";
     }
 
-    private Map<String, String> fillPredictDictionary(String predicatesPath) throws IOException {
-        List<String> predictionList = Files.readAllLines(Paths.get(predicatesPath), Charset.forName("UTF-8"));
+  private Map<String, String> fillPredictDictionary(List<String> predicateList) throws IOException {
         Map<String, String> dictionary = new HashMap<String, String>();
-        for (String line : predictionList) {
+    for (String line : predicateList) {
             String[] strs = line.split(":");
             dictionary.put(strs[0], strs[1]);
         }
@@ -219,7 +217,7 @@ public class ExtractTriple {
         lines.remove(0);
         List<Triple> tripleList = new ArrayList<Triple>();
         TextProcess tp = new TextProcess();
-        ExtractTriple extractTriple = new ExtractTriple(rulesPath, predicatesPath);
+      ExtractTriple extractTriple = ExtractTripleBuilder.getFromFile(rulesPath, predicatesPath);
         for (String line : lines) {
             Annotation annotation = new Annotation(line);
             tp.preProcess(annotation);

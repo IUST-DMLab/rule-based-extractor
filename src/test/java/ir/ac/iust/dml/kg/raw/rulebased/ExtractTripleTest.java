@@ -40,7 +40,7 @@ public class ExtractTripleTest {
     lines.remove(0);
     List<Triple> tripleList = new ArrayList<Triple>();
     TextProcess tp = new TextProcess();
-    ExtractTriple extractTriple = new ExtractTriple(rulesPath, predicatesPath);
+    ExtractTriple extractTriple = ExtractTripleBuilder.getFromFile(rulesPath, predicatesPath);
     for (String line : lines) {
       Annotation annotation = new Annotation(line);
       tp.preProcess(annotation);
