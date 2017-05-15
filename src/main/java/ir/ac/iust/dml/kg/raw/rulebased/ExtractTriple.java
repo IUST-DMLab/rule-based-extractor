@@ -52,7 +52,7 @@ public class ExtractTriple {
     final List<TokenSequencePattern> patterns;
 
 
-  ExtractTriple(List<String> rules, List<String> predictionList) throws IOException {
+  public ExtractTriple(List<String> rules, List<String> predictionList) throws IOException {
         client = new ExtractorClient("http://194.225.227.161:8094");
     this.rules = rules;
         patterns = new ArrayList<TokenSequencePattern>();
