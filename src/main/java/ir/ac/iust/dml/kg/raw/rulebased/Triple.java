@@ -7,12 +7,12 @@ package ir.ac.iust.dml.kg.raw.rulebased;
  */
 public class Triple {
 
-    String subject;
-    String object;
-    String predicate;
-    String sentence;
-    String objectUri;
-    String subjectUri;
+    private String subject;
+    private String object;
+    private String predicate;
+    private String sentence;
+    private String objectUri;
+    private String subjectUri;
 
     public String getObjectUri() {
         return objectUri;

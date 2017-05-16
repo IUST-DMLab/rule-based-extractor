@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ir.ac.iust.dml.kg.raw.extractTriple</groupId>
     <artifactId>extractTriple</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>Rule based Knowledge Graph Raw Text Extractor</name>
 
     <properties>
@@ -66,6 +66,11 @@
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>ir.ac.iust.dml.kg</groupId>
+            <artifactId>utils</artifactId>
+            <version>0.2.0</version>
+        </dependency>
         <dependency>
             <groupId>ir.ac.iust.dml.kg.services</groupId>
             <artifactId>resource-extractor-client</artifactId>

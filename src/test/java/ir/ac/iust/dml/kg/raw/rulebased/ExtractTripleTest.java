@@ -24,14 +24,11 @@ public class ExtractTripleTest {
 
     String inputPath = "inputText.txt";
     String rulesPath = "tripleRules.txt";
-    String predicatesPath = "predicates.txt";
 
     if (Files.notExists(Paths.get(inputPath)))
       Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
     if (Files.notExists(Paths.get(rulesPath)))
       Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
-    if (Files.notExists(Paths.get(predicatesPath)))
-      Files.copy(ExtractTriple.class.getResourceAsStream("/predicates.txt"), Paths.get(predicatesPath));
 
     List<String> lines = Files.readAllLines(Paths.get(inputPath), Charset.forName("UTF-8"));
     for (String line : lines) {
@@ -40,11 +37,12 @@ public class ExtractTripleTest {
     lines.remove(0);
     List<Triple> tripleList = new ArrayList<Triple>();
     TextProcess tp = new TextProcess();
-    ExtractTriple extractTriple = ExtractTripleBuilder.getFromFile(rulesPath, predicatesPath);
+    ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
+    assert extractTriple != null;
+
     for (String line : lines) {
       Annotation annotation = new Annotation(line);
       tp.preProcess(annotation);
-
       tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
     }
     System.out.println(tripleList.toString());
