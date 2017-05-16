@@ -91,7 +91,7 @@ public class ExtractTriple {
     return triple;
   }
 
-  List<Triple> extractTripleFromAnnotation(Annotation annotation) {
+  public List<Triple> extractTripleFromAnnotation(Annotation annotation) {
     List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
     List<Triple> triples = new ArrayList<Triple>();
     List<Triple> sentenceTriples;
