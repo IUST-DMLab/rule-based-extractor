@@ -7,6 +7,9 @@ public class RuleAndPredicate {
   private String predicate;
   private TokenSequencePattern pattern;
 
+  public RuleAndPredicate() {
+  }
+
   public RuleAndPredicate(String rule, String predicate) {
     this.rule = rule;
     this.predicate = predicate;
