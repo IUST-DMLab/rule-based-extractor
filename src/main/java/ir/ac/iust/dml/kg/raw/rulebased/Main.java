@@ -19,7 +19,7 @@ import java.util.List;
 public class Main {
   public static void main(String[] args) throws IOException {
 
-    String inputPath = "inputText.txt";
+    String inputPath = "C:\\Users\\mylenovo\\Downloads\\Compressed\\news1\\news1.csv";
     String outputPath = "outputTxt.txt";
     String rulesPath = "tripleRules.txt";
 
@@ -52,4 +52,41 @@ public class Main {
 
     TripleJsonProducer.write(tripleList, Paths.get(outputPath));
   }
+    public static void testInNews() throws IOException {
+
+        String inputPath = "C:\\Users\\mylenovo\\Downloads\\Compressed\\news1\\news1.csv";
+        String outputPath = "outputTxt.txt";
+        String rulesPath = "tripleRules.txt";
+
+
+
+        if (Files.notExists(Paths.get(inputPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
+        if (Files.notExists(Paths.get(rulesPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
+
+        List<String> lines = null;
+        try {
+            lines = FileUtils.readLines(new File(inputPath), "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        List<Triple> tripleList = new ArrayList<Triple>();
+        TextProcess tp = new TextProcess();
+        ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
+        assert extractTriple != null;
+        assert lines != null;
+        double index=0;
+        for (String line : lines) {
+            System.out.println(line);
+            Annotation annotation = new Annotation(line);
+            tp.preProcess(annotation);
+            tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
+            System.out.println(index);
+            index++;
+        }
+
+        TripleJsonProducer.write(tripleList, Paths.get(outputPath));
+    }
 }

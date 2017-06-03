@@ -21,86 +21,101 @@ import java.util.List;
  */
 public class ExtractTriple {
 
-  private final ExtractorClient client;
-  private final List<RuleAndPredicate> rules;
+    private final ExtractorClient client;
+    private final List<RuleAndPredicate> rules;
 
-  public ExtractTriple(List<RuleAndPredicate> rules) throws IOException {
-    client = new ExtractorClient("http://194.225.227.161:8094");
-    this.rules = rules;
-    Env environment = TokenSequencePattern.getNewEnv();
-    for (RuleAndPredicate rule : rules) {
-      System.out.println(rule);
-      rule.setPattern(TokenSequencePattern.compile(environment, rule.getRule()));
-    }
-  }
-
-  public List<Triple> extractTripleFromSentence(CoreMap sentence) {
-    List<Triple> triples = new ArrayList<Triple>();
-    List<MatchedResource> result = client.match(sentence.get(CoreAnnotations.TextAnnotation.class));
-    annotateEntityType(sentence, result);
-
-    for (RuleAndPredicate rule : rules) {
-      List<CoreLabel> StanfordTokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
-      TokenSequenceMatcher matcher = rule.getPattern().getMatcher(StanfordTokens);
-      while (matcher.find()) {
-        Triple triple = getTriple(matcher);
-        triple.setPredicate(rule.getPredicate());
-        triple.setSentence(sentence.get(CoreAnnotations.TextAnnotation.class));
-        triples.add(triple);
-      }
-    }
-
-    return triples;
-
-  }
-
-  private void annotateEntityType(CoreMap sentence, List<MatchedResource> matchedResources) {
-    List<CoreLabel> coreLabels = sentence.get(CoreAnnotations.TokensAnnotation.class);
-    for (CoreLabel coreLabel : coreLabels)
-      coreLabel.setNER("");
-    for (MatchedResource matchedResource : matchedResources) {
-      if (matchedResource.getAmbiguities().size() == 0 && matchedResource.getResource().getClassTree().size() > 0) {
-        int tokenBeginIndex = matchedResource.getStart();
-        int tokenEndIndex = matchedResource.getEnd();
-        String matchedResourceType = getMatchedResourceType(matchedResource);
-        for (int i = tokenBeginIndex; i <= tokenEndIndex; i++) {
-          if (i == tokenBeginIndex)
-            coreLabels.get(i).setNER("B_" + matchedResourceType);
-          else
-            coreLabels.get(i).setNER("I_" + matchedResourceType);
+    public ExtractTriple(List<RuleAndPredicate> rules) throws IOException {
+        client = new ExtractorClient("http://194.225.227.161:8094");
+        this.rules = rules;
+        Env environment = TokenSequencePattern.getNewEnv();
+        for (RuleAndPredicate rule : rules) {
+            System.out.println(rule);
+            rule.setPattern(TokenSequencePattern.compile(environment, rule.getRule()));
         }
-      }
+    }
+
+    public List<Triple> extractTripleFromSentence(CoreMap sentence) {
+        List<Triple> triples = new ArrayList<Triple>();
+        List<MatchedResource> result = client.match(sentence.get(CoreAnnotations.TextAnnotation.class));
+        annotateEntityType(sentence, result);
+
+        for (RuleAndPredicate rule : rules) {
+            List<CoreLabel> StanfordTokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
+            TokenSequenceMatcher matcher = rule.getPattern().getMatcher(StanfordTokens);
+            while (matcher.find()) {
+                Triple triple = getTriple(matcher);
+                triple.setPredicate(rule.getPredicate());
+                triple.setSentence(sentence.get(CoreAnnotations.TextAnnotation.class));
+                triples.add(triple);
+            }
+        }
+
+        return triples;
 
     }
-  }
 
-  private String getMatchedResourceType(MatchedResource matchedResource) {
-    StringBuilder builder = new StringBuilder();
-    matchedResource.getResource().getClassTree().forEach(it ->
-        builder.append(it.replace("fkgo:", "").replace("http://fkg.iust.ac.ir/ontology", ""))
-            .append(',')
-    );
-    if (builder.length() > 0) builder.setLength(builder.length() - 1);
-    return builder.toString();
-  }
+    private void annotateEntityType(CoreMap sentence, List<MatchedResource> matchedResources) {
+        List<CoreLabel> coreLabels = sentence.get(CoreAnnotations.TokensAnnotation.class);
+        for (CoreLabel coreLabel : coreLabels)
+            coreLabel.setNER("O");
+        int sentenceSize=sentence.get(CoreAnnotations.TokensAnnotation.class).size();
+       if(matchedResources==null)
+           return;
+        try {
+            for (MatchedResource matchedResource : matchedResources) {
+                if (matchedResource.getAmbiguities().size() == 0 && matchedResource.getResource().getClassTree().size() > 0) {
+                    int tokenBeginIndex = matchedResource.getStart();
+                    int tokenEndIndex = matchedResource.getEnd();
+                    String matchedResourceType = getMatchedResourceType(matchedResource);
 
-  private Triple getTriple(TokenSequenceMatcher matcher) {
-    Triple triple = new Triple();
-    triple.setSubject(matcher.group("$subject"));
-    triple.setObject(matcher.group("$object"));
-    return triple;
-  }
+                    if(tokenEndIndex<sentenceSize && tokenBeginIndex<sentenceSize)
+                    for (int i = tokenBeginIndex; i <= tokenEndIndex; i++) {
+                        if (i == tokenBeginIndex) {
+                            coreLabels.get(i).setNER("B_" + matchedResourceType);
+                            coreLabels.get(i).set(CoreAnnotations.AbbrAnnotation.class, matchedResource.getResource().getIri());
+                        } else {
+                            coreLabels.get(i).setNER("I_" + matchedResourceType);
+                            coreLabels.get(i).set(CoreAnnotations.AbbrAnnotation.class, matchedResource.getResource().getIri());
+                        }
+                    }
+                }
 
-  public List<Triple> extractTripleFromAnnotation(Annotation annotation) {
-    List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-    List<Triple> triples = new ArrayList<Triple>();
-    List<Triple> sentenceTriples;
-    for (CoreMap sentence : sentences) {
-      sentenceTriples = extractTripleFromSentence(sentence);
-      if (sentenceTriples.size() != 0)
-        triples.addAll(sentenceTriples);
+            }
+        } catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+
     }
-    return triples;
-  }
+
+    private String getMatchedResourceType(MatchedResource matchedResource) {
+        StringBuilder builder = new StringBuilder();
+        matchedResource.getResource().getClassTree().forEach(it ->
+                builder.append(it.replace("fkgo:", "").replace("http://fkg.iust.ac.ir/ontology", ""))
+                        .append(',')
+        );
+        if (builder.length() > 0) builder.setLength(builder.length() - 1);
+        return builder.toString();
+    }
+
+    private Triple getTriple(TokenSequenceMatcher matcher) {
+        Triple triple = new Triple();
+        triple.setSubject(matcher.group("$subject"));
+        triple.setSubjectUri(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
+        triple.setSubjectUri(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
+        triple.setObject(matcher.group("$object"));
+        return triple;
+    }
+
+    public List<Triple> extractTripleFromAnnotation(Annotation annotation) {
+        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+        List<Triple> triples = new ArrayList<Triple>();
+        List<Triple> sentenceTriples;
+        for (CoreMap sentence : sentences) {
+            sentenceTriples = extractTripleFromSentence(sentence);
+            if (sentenceTriples.size() != 0)
+                triples.addAll(sentenceTriples);
+        }
+        return triples;
+    }
 
 }

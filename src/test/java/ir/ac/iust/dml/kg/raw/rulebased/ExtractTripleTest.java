@@ -18,6 +18,10 @@ import java.util.List;
  */
 public class ExtractTripleTest {
 
+    @Test
+    public void testInNews() throws IOException{
+        new Main().testInNews();
+    }
   @Test
   public void testExtractTriple() throws IOException {
 
@@ -34,7 +38,7 @@ public class ExtractTripleTest {
     for (String line : lines) {
       System.out.println("سلام: " + line);
     }
-    lines.remove(0);
+   // lines.remove(0);
     List<Triple> tripleList = new ArrayList<Triple>();
     TextProcess tp = new TextProcess();
     ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
