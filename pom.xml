@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ir.ac.iust.dml.kg.raw.extractTriple</groupId>
     <artifactId>extractTriple</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <name>Rule based Knowledge Graph Raw Text Extractor</name>
 
     <properties>
