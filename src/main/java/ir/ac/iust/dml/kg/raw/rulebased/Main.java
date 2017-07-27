@@ -2,6 +2,7 @@ package ir.ac.iust.dml.kg.raw.rulebased;
 
 import edu.stanford.nlp.pipeline.Annotation;
 import ir.ac.iust.dml.kg.raw.TextProcess;
+import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -19,7 +20,7 @@ import java.util.List;
 public class Main {
   public static void main(String[] args) throws IOException {
 
-    String inputPath = "C:\\Users\\mylenovo\\Downloads\\Compressed\\news1\\news1.csv";
+    String inputPath = "input.txt";
     String outputPath = "outputTxt.txt";
     String rulesPath = "tripleRules.txt";
 
@@ -39,7 +40,7 @@ public class Main {
       e.printStackTrace();
     }
 
-    List<Triple> tripleList = new ArrayList<Triple>();
+    List<RawTriple> tripleList = new ArrayList<RawTriple>();
     TextProcess tp = new TextProcess();
     ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
     assert extractTriple != null;
@@ -54,7 +55,7 @@ public class Main {
   }
     public static void testInNews() throws IOException {
 
-        String inputPath = "C:\\Users\\mylenovo\\Downloads\\Compressed\\news1\\news1.csv";
+        String inputPath = "D:\\extract triple1\\newsCorpus\\news1.csv";
         String outputPath = "outputTxt.txt";
         String rulesPath = "tripleRules.txt";
 
@@ -72,7 +73,7 @@ public class Main {
             e.printStackTrace();
         }
 
-        List<Triple> tripleList = new ArrayList<Triple>();
+        List<RawTriple> tripleList = new ArrayList<RawTriple>();
         TextProcess tp = new TextProcess();
         ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
         assert extractTriple != null;

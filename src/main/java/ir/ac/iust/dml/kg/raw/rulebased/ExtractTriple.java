@@ -7,6 +7,7 @@ import edu.stanford.nlp.ling.tokensregex.TokenSequenceMatcher;
 import edu.stanford.nlp.ling.tokensregex.TokenSequencePattern;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.util.CoreMap;
+import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
 import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
 
@@ -34,8 +35,10 @@ public class ExtractTriple {
         }
     }
 
-    public List<Triple> extractTripleFromSentence(CoreMap sentence) {
-        List<Triple> triples = new ArrayList<Triple>();
+
+
+    public List<RawTriple> extractTripleFromSentence(CoreMap sentence) {
+        List<RawTriple> triples = new ArrayList<RawTriple>();
         List<MatchedResource> result = client.match(sentence.get(CoreAnnotations.TextAnnotation.class));
         annotateEntityType(sentence, result);
 
@@ -43,9 +46,9 @@ public class ExtractTriple {
             List<CoreLabel> StanfordTokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
             TokenSequenceMatcher matcher = rule.getPattern().getMatcher(StanfordTokens);
             while (matcher.find()) {
-                Triple triple = getTriple(matcher);
+                RawTriple triple = getTriple(matcher);
                 triple.setPredicate(rule.getPredicate());
-                triple.setSentence(sentence.get(CoreAnnotations.TextAnnotation.class));
+                triple.setSourceUrl(sentence.get(CoreAnnotations.TextAnnotation.class));
                 triples.add(triple);
             }
         }
@@ -63,7 +66,7 @@ public class ExtractTriple {
            return;
         try {
             for (MatchedResource matchedResource : matchedResources) {
-                if (matchedResource.getAmbiguities().size() == 0 && matchedResource.getResource().getClassTree().size() > 0) {
+                if (matchedResource.getAmbiguities().size() == 0 && matchedResource.getResource().getClassTree().size() > 0 &&matchedResource.getResource().getDisambiguatedFrom().size()==0) {
                     int tokenBeginIndex = matchedResource.getStart();
                     int tokenEndIndex = matchedResource.getEnd();
                     String matchedResourceType = getMatchedResourceType(matchedResource);
@@ -97,25 +100,33 @@ public class ExtractTriple {
         return builder.toString();
     }
 
-    private Triple getTriple(TokenSequenceMatcher matcher) {
-        Triple triple = new Triple();
+    private RawTriple getTriple(TokenSequenceMatcher matcher) {
+        RawTriple triple = new RawTriple();
         triple.setSubject(matcher.group("$subject"));
-        triple.setSubjectUri(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
-        triple.setSubjectUri(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
+        triple.setSubject(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
+        triple.setSubject(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
         triple.setObject(matcher.group("$object"));
         return triple;
     }
 
-    public List<Triple> extractTripleFromAnnotation(Annotation annotation) {
+    public List<RawTriple> extractTripleFromAnnotation(Annotation annotation) {
         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-        List<Triple> triples = new ArrayList<Triple>();
-        List<Triple> sentenceTriples;
+        List<RawTriple> triples = new ArrayList<RawTriple>();
+        List<RawTriple> sentenceTriples;
         for (CoreMap sentence : sentences) {
-            sentenceTriples = extractTripleFromSentence(sentence);
-            if (sentenceTriples.size() != 0)
-                triples.addAll(sentenceTriples);
+            int sentenceLength = sentence.get(CoreAnnotations.TextAnnotation.class).length();
+            if (sentenceLength > 20 && sentenceLength < 200) {
+                sentenceTriples = extractTripleFromSentence(sentence);
+                if (sentenceTriples.size() != 0)
+                    triples.addAll(sentenceTriples);
+            }
         }
         return triples;
+    }
+
+    public List<RawTriple> extractTripleFromText(String inputText)
+    {
+       return extractTripleFromAnnotation(new Annotation(inputText));
     }
 
 }

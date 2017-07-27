@@ -2,6 +2,7 @@ package ir.ac.iust.dml.kg.raw.rulebased;
 
 import edu.stanford.nlp.pipeline.Annotation;
 import ir.ac.iust.dml.kg.raw.TextProcess;
+import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class ExtractTripleTest {
       System.out.println("سلام: " + line);
     }
    // lines.remove(0);
-    List<Triple> tripleList = new ArrayList<Triple>();
+    List<RawTriple> tripleList = new ArrayList<RawTriple>();
     TextProcess tp = new TextProcess();
     ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
     assert extractTriple != null;
