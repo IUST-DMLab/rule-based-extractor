@@ -10,10 +10,10 @@ import edu.stanford.nlp.util.CoreMap;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
 import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,7 +51,7 @@ public class ExtractTriple {
                 triple.setPredicate(rule.getPredicate());
                 triple.setSourceUrl(sentence.get(CoreAnnotations.TextAnnotation.class));
                 triple.setModule("RuleBased");
-               // triple.setExtractionTime(DateTime.now());
+                triple.setExtractionTime(System.currentTimeMillis());
                 triples.add(triple);
             }
         }
