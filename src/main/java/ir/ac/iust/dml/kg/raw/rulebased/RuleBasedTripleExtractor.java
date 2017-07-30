@@ -7,6 +7,8 @@ import ir.ac.iust.dml.kg.raw.services.access.entities.Rule;
 import ir.ac.iust.dml.kg.raw.services.access.repositories.RuleRepository;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.raw.triple.RawTripleExtractor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,25 +17,30 @@ import java.util.List;
 /**
  * Created by mohammad on 7/23/2017.
  */
-public  class RuleBasedTripleExtractor implements RawTripleExtractor {
-
+@Service
+public class RuleBasedTripleExtractor implements RawTripleExtractor {
+    @Autowired
     private RuleRepository ruleDao;
+    List<RuleAndPredicate> mainRuleAndPredicates;
+
 
     @Override
-    public List<RawTriple> extract(String source,String version,String inputText) {
+    public List<RawTriple> extract(String source, String version, String inputText) {
+        List<RuleAndPredicate> ruleAndPredicates = new ArrayList<RuleAndPredicate>();
+      //  if(mainRuleAndPredicates==null)
+        //{
+            List<Rule> rules = ruleDao.findAll();
 
+
+            for (Rule rule : rules) {
+                RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
+                ruleAndPredicate.setRule(rule.getRule());
+                ruleAndPredicate.setPredicate(rule.getPredicate());
+                ruleAndPredicates.add(ruleAndPredicate);
+            }
+      //  }
+       // mainRuleAndPredicates = ruleAndPredicates;
         List<RawTriple> result = new ArrayList<>();
-
-        List<RuleAndPredicate> ruleAndPredicates=new ArrayList<RuleAndPredicate>();
-        List<Rule>  rules=ruleDao.findAll();
-        for(Rule rule:rules)
-        {
-            RuleAndPredicate ruleAndPredicate=new RuleAndPredicate();
-            ruleAndPredicate.setRule(rule.getRule());
-            ruleAndPredicate.setPredicate(rule.getPredicate());
-        }
-
-
         ExtractTriple extractTriple = null;
         try {
             extractTriple = new ExtractTriple(ruleAndPredicates);

@@ -10,6 +10,7 @@ import edu.stanford.nlp.util.CoreMap;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
 import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ public class ExtractTriple {
                 RawTriple triple = getTriple(matcher);
                 triple.setPredicate(rule.getPredicate());
                 triple.setSourceUrl(sentence.get(CoreAnnotations.TextAnnotation.class));
+                triple.setModule("RuleBased");
+               // triple.setExtractionTime(DateTime.now());
                 triples.add(triple);
             }
         }
@@ -103,14 +106,17 @@ public class ExtractTriple {
     private RawTriple getTriple(TokenSequenceMatcher matcher) {
         RawTriple triple = new RawTriple();
         triple.setSubject(matcher.group("$subject"));
-        triple.setSubject(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
-        triple.setSubject(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
         triple.setObject(matcher.group("$object"));
+        //triple.setSubject(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
+       // triple.setSubject(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
+        triple.setAccuracy(0.1);
+        triple.needsMapping(true);
+
         return triple;
     }
 
     public List<RawTriple> extractTripleFromAnnotation(Annotation annotation) {
-        List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
+         List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
         List<RawTriple> triples = new ArrayList<RawTriple>();
         List<RawTriple> sentenceTriples;
         for (CoreMap sentence : sentences) {

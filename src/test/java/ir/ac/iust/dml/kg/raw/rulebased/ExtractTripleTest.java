@@ -44,10 +44,11 @@ public class ExtractTripleTest {
     TextProcess tp = new TextProcess();
     ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
     assert extractTriple != null;
-
+    RuleBasedTripleExtractor ruleBasedTripleExtractor=new RuleBasedTripleExtractor();
     for (String line : lines) {
       Annotation annotation = new Annotation(line);
       tp.preProcess(annotation);
+      //ruleBasedTripleExtractor.extract(null,null,line);
       tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
     }
     System.out.println(tripleList.toString());
