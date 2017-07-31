@@ -105,8 +105,9 @@ public class ExtractTriple {
 
     private RawTriple getTriple(TokenSequenceMatcher matcher) {
         RawTriple triple = new RawTriple();
-        triple.setSubject(matcher.group("$subject"));
-        triple.setObject(matcher.group("$object"));
+        String url="fkgr:";
+        triple.setSubject(url+matcher.group("$subject"));
+        triple.setObject(url+matcher.group("$object"));
         //triple.setSubject(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
        // triple.setSubject(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
         triple.setAccuracy(0.1);
