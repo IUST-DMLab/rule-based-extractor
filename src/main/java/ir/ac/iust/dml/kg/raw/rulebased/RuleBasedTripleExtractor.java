@@ -28,8 +28,6 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
     void init() {
 
         List<Rule> rules = ruleDao.findAll();
-
-
         for (Rule rule : rules) {
             RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
             ruleAndPredicate.setRule(rule.getRule());
