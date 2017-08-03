@@ -13,7 +13,6 @@ import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,7 +30,6 @@ public class ExtractTriple {
         this.rules = rules;
         Env environment = TokenSequencePattern.getNewEnv();
         for (RuleAndPredicate rule : rules) {
-            System.out.println(rule);
             rule.setPattern(TokenSequencePattern.compile(environment, rule.getRule()));
         }
     }

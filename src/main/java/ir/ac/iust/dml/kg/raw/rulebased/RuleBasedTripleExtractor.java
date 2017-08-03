@@ -7,6 +7,8 @@ import ir.ac.iust.dml.kg.raw.services.access.entities.Rule;
 import ir.ac.iust.dml.kg.raw.services.access.repositories.RuleRepository;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.raw.triple.RawTripleExtractor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +22,15 @@ import java.util.List;
  */
 @Service
 public class RuleBasedTripleExtractor implements RawTripleExtractor {
-    @Autowired
-    private RuleRepository ruleDao;
-    List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
+
+  private static final Logger logger = LoggerFactory.getLogger(RuleBasedTripleExtractor.class);
+  @Autowired
+  private RuleRepository ruleDao;
+  private ExtractTriple extractTriple;
 
     @PostConstruct
     void init() {
-
+      List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
         List<Rule> rules = ruleDao.findAll();
         for (Rule rule : rules) {
             RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
@@ -34,18 +38,17 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
             ruleAndPredicate.setPredicate(rule.getPredicate());
             mainRuleAndPredicates.add(ruleAndPredicate);
         }
+      try {
+        extractTriple = new ExtractTriple(mainRuleAndPredicates);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      logger.info("rules loaded");
     }
 
     @Override
     public List<RawTriple> extract(String source, String version, String inputText) {
-
         List<RawTriple> result = new ArrayList<>();
-        ExtractTriple extractTriple = null;
-        try {
-            extractTriple = new ExtractTriple(mainRuleAndPredicates);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         final List<String> lines = SentenceTokenizer.SentenceSplitterRaw(inputText);
         TextProcess tp = new TextProcess();
         for (String line : lines) {
