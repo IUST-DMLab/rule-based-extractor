@@ -20,37 +20,40 @@ import java.util.List;
 public class ExtractTripleTest {
 
     @Test
-    public void testInNews() throws IOException{
+    public void testInNews() throws IOException {
         new Main().testInNews();
     }
-  @Test
-  public void testExtractTriple() throws IOException {
 
 
-    String inputPath = "inputText.txt";
-    String rulesPath = "tripleRules.txt";
+    @Test
+    public void testExtractTriple() throws IOException {
 
-    if (Files.notExists(Paths.get(inputPath)))
-      Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
-    if (Files.notExists(Paths.get(rulesPath)))
-      Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
 
-    List<String> lines = Files.readAllLines(Paths.get(inputPath), Charset.forName("UTF-8"));
-    for (String line : lines) {
-      System.out.println("سلام: " + line);
+        String inputPath = "inputText.txt";
+        String rulesPath = "tripleRules.txt";
+
+        if (Files.notExists(Paths.get(inputPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
+        if (Files.notExists(Paths.get(rulesPath)))
+            Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
+
+        List<String> lines = Files.readAllLines(Paths.get(inputPath), Charset.forName("UTF-8"));
+        for (String line : lines) {
+            System.out.println("سلام: " + line);
+        }
+        // lines.remove(0);
+        List<RawTriple> tripleList = new ArrayList<RawTriple>();
+        TextProcess tp = new TextProcess();
+        ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
+        assert extractTriple != null;
+
+        for (String line : lines) {
+            Annotation annotation = new Annotation(line);
+            tp.preProcess(annotation);
+
+            tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
+        }
+
+        System.out.println(tripleList.toString());
     }
-   // lines.remove(0);
-    List<RawTriple> tripleList = new ArrayList<RawTriple>();
-    TextProcess tp = new TextProcess();
-    ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
-    assert extractTriple != null;
-    RuleBasedTripleExtractor ruleBasedTripleExtractor=new RuleBasedTripleExtractor();
-    for (String line : lines) {
-      Annotation annotation = new Annotation(line);
-      tp.preProcess(annotation);
-      //ruleBasedTripleExtractor.extract(null,null,line);
-      tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
-    }
-    System.out.println(tripleList.toString());
-  }
 }

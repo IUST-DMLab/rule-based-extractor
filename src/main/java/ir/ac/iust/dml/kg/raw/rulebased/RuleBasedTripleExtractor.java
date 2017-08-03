@@ -10,6 +10,7 @@ import ir.ac.iust.dml.kg.raw.triple.RawTripleExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,27 +24,26 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
     private RuleRepository ruleDao;
     List<RuleAndPredicate> mainRuleAndPredicates;
 
+    @PostConstruct
+    void init() {
+        List<Rule> rules = ruleDao.findAll();
+
+
+        for (Rule rule : rules) {
+            RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
+            ruleAndPredicate.setRule(rule.getRule());
+            ruleAndPredicate.setPredicate(rule.getPredicate());
+            mainRuleAndPredicates.add(ruleAndPredicate);
+        }
+    }
 
     @Override
     public List<RawTriple> extract(String source, String version, String inputText) {
-        List<RuleAndPredicate> ruleAndPredicates = new ArrayList<RuleAndPredicate>();
-      //  if(mainRuleAndPredicates==null)
-        //{
-            List<Rule> rules = ruleDao.findAll();
 
-
-            for (Rule rule : rules) {
-                RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
-                ruleAndPredicate.setRule(rule.getRule());
-                ruleAndPredicate.setPredicate(rule.getPredicate());
-                ruleAndPredicates.add(ruleAndPredicate);
-            }
-      //  }
-       // mainRuleAndPredicates = ruleAndPredicates;
         List<RawTriple> result = new ArrayList<>();
         ExtractTriple extractTriple = null;
         try {
-            extractTriple = new ExtractTriple(ruleAndPredicates);
+            extractTriple = new ExtractTriple(mainRuleAndPredicates);
         } catch (IOException e) {
             e.printStackTrace();
         }
