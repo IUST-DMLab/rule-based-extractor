@@ -22,10 +22,11 @@ import java.util.List;
 public class RuleBasedTripleExtractor implements RawTripleExtractor {
     @Autowired
     private RuleRepository ruleDao;
-    List<RuleAndPredicate> mainRuleAndPredicates;
+    List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
 
     @PostConstruct
     void init() {
+
         List<Rule> rules = ruleDao.findAll();
 
 
