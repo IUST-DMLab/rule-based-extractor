@@ -44,7 +44,7 @@
     <orderEntry type="library" name="Maven: org.jetbrains.kotlin:kotlin-stdlib:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.jetbrains:annotations:13.0" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:20.0" level="project" />
-    <orderEntry type="library" name="Maven: ir.ac.iust.dml.kg.services:resource-extractor-client:0.1.0" level="project" />
+    <orderEntry type="module" module-name="resource-extractor-client" />
     <orderEntry type="module" module-name="nlp-utils" />
     <orderEntry type="library" name="Maven: org.json:json:20160810" level="project" />
     <orderEntry type="library" name="Maven: ir.ac.iust.nlp:jhazm:0.2" level="project" />

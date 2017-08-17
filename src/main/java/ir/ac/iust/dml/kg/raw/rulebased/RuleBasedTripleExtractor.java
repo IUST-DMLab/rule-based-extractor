@@ -46,11 +46,13 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
       logger.info("rules loaded");
     }
 
+    TextProcess tp = new TextProcess();
     @Override
     public List<RawTriple> extract(String source, String version, String inputText) {
         List<RawTriple> result = new ArrayList<>();
+
         final List<String> lines = SentenceTokenizer.SentenceSplitterRaw(inputText);
-        TextProcess tp = new TextProcess();
+
         for (String line : lines) {
             Annotation annotation = new Annotation(line);
             tp.preProcess(annotation);
@@ -58,4 +60,5 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
         }
         return result;
     }
+
 }

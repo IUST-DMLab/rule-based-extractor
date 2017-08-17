@@ -10,6 +10,7 @@ import edu.stanford.nlp.util.CoreMap;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
 import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
+import ir.ac.iust.dml.kg.resource.extractor.client.ResourceType;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,7 +41,6 @@ public class ExtractTriple {
         List<RawTriple> triples = new ArrayList<RawTriple>();
         List<MatchedResource> result = client.match(sentence.get(CoreAnnotations.TextAnnotation.class));
         annotateEntityType(sentence, result);
-
         for (RuleAndPredicate rule : rules) {
             List<CoreLabel> StanfordTokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
             TokenSequenceMatcher matcher = rule.getPattern().getMatcher(StanfordTokens);
@@ -53,9 +53,7 @@ public class ExtractTriple {
                 triples.add(triple);
             }
         }
-
         return triples;
-
     }
 
     private void annotateEntityType(CoreMap sentence, List<MatchedResource> matchedResources) {
@@ -67,7 +65,7 @@ public class ExtractTriple {
            return;
         try {
             for (MatchedResource matchedResource : matchedResources) {
-                if (matchedResource.getAmbiguities().size() == 0 && matchedResource.getResource().getClassTree().size() > 0 &&matchedResource.getResource().getDisambiguatedFrom().size()==0) {
+                if (matchedResource.getAmbiguities().size() == 0 && matchedResource.getResource().getClassTree().size() > 0 && matchedResource.getResource().getDisambiguatedFrom().size() == 0 && matchedResource.getResource().getType() != ResourceType.Property) {
                     int tokenBeginIndex = matchedResource.getStart();
                     int tokenEndIndex = matchedResource.getEnd();
                     String matchedResourceType = getMatchedResourceType(matchedResource);
