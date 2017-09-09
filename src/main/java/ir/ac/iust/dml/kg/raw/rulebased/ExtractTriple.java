@@ -13,7 +13,6 @@ import ir.ac.iust.dml.kg.raw.extractor.ResolvedEntityToken;
 import ir.ac.iust.dml.kg.raw.extractor.ResolvedEntityTokenResource;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
 import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
-import ir.ac.iust.dml.kg.resource.extractor.client.MatchedResource;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class ExtractTriple {
     public List<RawTriple> extractTripleFromSentence(CoreMap sentence) {
         List<RawTriple> triples = new ArrayList<RawTriple>();
         String sentenceText = sentence.get(CoreAnnotations.TextAnnotation.class);
-        List<MatchedResource> result = client.match(sentenceText);
+        // List<MatchedResource> result = client.match(sentenceText);
 
         List<List<ResolvedEntityToken>> lists = fkgFy(sentenceText);
         annotateEntityType(sentence, lists.get(0));

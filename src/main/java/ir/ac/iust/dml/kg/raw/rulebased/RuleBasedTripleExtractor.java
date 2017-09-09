@@ -3,6 +3,7 @@ package ir.ac.iust.dml.kg.raw.rulebased;
 import edu.stanford.nlp.pipeline.Annotation;
 import ir.ac.iust.dml.kg.raw.SentenceTokenizer;
 import ir.ac.iust.dml.kg.raw.TextProcess;
+import ir.ac.iust.dml.kg.raw.extractor.ResolvedEntityToken;
 import ir.ac.iust.dml.kg.raw.services.access.entities.Rule;
 import ir.ac.iust.dml.kg.raw.services.access.repositories.RuleRepository;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
@@ -58,6 +59,18 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
             tp.preProcess(annotation);
             result.addAll(extractTriple.extractTripleFromAnnotation(annotation));
         }
+        return result;
+    }
+
+    @Override
+    public List<RawTriple> extract(String source, String version, List<List<ResolvedEntityToken>> tokens) {
+        List<RawTriple> result = new ArrayList<>();
+
+        for (List<ResolvedEntityToken> sentence : tokens) {
+            result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(sentence)));
+        }
+
+
         return result;
     }
 
