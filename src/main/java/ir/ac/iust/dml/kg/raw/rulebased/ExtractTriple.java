@@ -94,7 +94,7 @@ public class ExtractTriple {
         }
       }
     } catch (Exception ex) {
-      LOGGER.info("Error in annotateEntityType method", ex);
+      LOGGER.trace("Error in annotateEntityType method", ex);
     }
 
   }
