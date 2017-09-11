@@ -66,9 +66,9 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
     public List<RawTriple> extract(String source, String version, List<List<ResolvedEntityToken>> tokens) {
         List<RawTriple> result = new ArrayList<>();
 
-        for (List<ResolvedEntityToken> sentence : tokens) {
-            result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(sentence)));
-        }
+        // for (List<ResolvedEntityToken> sentence : tokens) {
+        result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(tokens)));
+
 
 
         return result;
