@@ -29,12 +29,11 @@ import java.util.List;
 public class ExtractTriple {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SentenceTokenizer.class);
-  private final ExtractorClient client;
   private final List<RuleAndPredicate> rules;
-  EnhancedEntityExtractor enhancedEntityExtractor;
+  private EnhancedEntityExtractor enhancedEntityExtractor;
 
   public ExtractTriple(List<RuleAndPredicate> rules) throws IOException {
-    client = new ExtractorClient("http://194.225.227.161:8094");
+    ExtractorClient client = new ExtractorClient("http://194.225.227.161:8094");
     this.rules = rules;
     Env environment = TokenSequencePattern.getNewEnv();
     for (RuleAndPredicate rule : rules) {
@@ -44,7 +43,7 @@ public class ExtractTriple {
 
   }
 
-  public List<List<ResolvedEntityToken>> fkgFy(String text) {
+  private List<List<ResolvedEntityToken>> fkgFy(String text) {
     if (enhancedEntityExtractor == null) enhancedEntityExtractor = new EnhancedEntityExtractor();
     final List<List<ResolvedEntityToken>> resolved = enhancedEntityExtractor.extract(text);
     enhancedEntityExtractor.disambiguateByContext(resolved, 0.0011f);
@@ -53,13 +52,15 @@ public class ExtractTriple {
     return resolved;
   }
 
-  public List<RawTriple> extractTripleFromSentence(CoreMap sentence) {
-    List<RawTriple> triples = new ArrayList<RawTriple>();
+  private List<RawTriple> extractTripleFromSentence(CoreMap sentence, List<ResolvedEntityToken> preResolvedToken) {
+    List<RawTriple> triples = new ArrayList<>();
     String sentenceText = sentence.get(CoreAnnotations.TextAnnotation.class);
     // List<MatchedResource> result = client.match(sentenceText);
 
-    List<List<ResolvedEntityToken>> lists = fkgFy(sentenceText);
-    annotateEntityType(sentence, lists.get(0));
+    if (preResolvedToken == null) {
+      List<List<ResolvedEntityToken>> lists = fkgFy(sentenceText);
+      annotateEntityType(sentence, lists.get(0));
+    } else annotateEntityType(sentence, preResolvedToken);
     for (RuleAndPredicate rule : rules) {
       List<CoreLabel> StanfordTokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
       TokenSequenceMatcher matcher = rule.getPattern().getMatcher(StanfordTokens);
@@ -133,13 +134,20 @@ public class ExtractTriple {
   }
 
   public List<RawTriple> extractTripleFromAnnotation(Annotation annotation) {
+    return extractTripleFromAnnotation(annotation, null);
+  }
+
+  List<RawTriple> extractTripleFromAnnotation(Annotation annotation,
+                                              List<List<ResolvedEntityToken>> preResolvedTokens) {
     List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-    List<RawTriple> triples = new ArrayList<RawTriple>();
+    List<RawTriple> triples = new ArrayList<>();
     List<RawTriple> sentenceTriples;
-    for (CoreMap sentence : sentences) {
+    for (int i = 0; i < sentences.size(); i++) {
+      CoreMap sentence = sentences.get(i);
       int sentenceLength = sentence.get(CoreAnnotations.TextAnnotation.class).length();
       if (sentenceLength > 20 && sentenceLength < 200) {
-        sentenceTriples = extractTripleFromSentence(sentence);
+        sentenceTriples = extractTripleFromSentence(sentence,
+            preResolvedTokens != null ? preResolvedTokens.get(i) : null);
         if (sentenceTriples.size() != 0)
           triples.addAll(sentenceTriples);
       }
@@ -148,7 +156,7 @@ public class ExtractTriple {
   }
 
   public List<RawTriple> extractTripleFromText(String inputText) {
-    return extractTripleFromAnnotation(new Annotation(inputText));
+    return extractTripleFromAnnotation(new Annotation(inputText), null);
   }
 
 }

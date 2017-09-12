@@ -25,11 +25,15 @@ import java.util.List;
 public class RuleBasedTripleExtractor implements RawTripleExtractor {
 
   private static final Logger logger = LoggerFactory.getLogger(RuleBasedTripleExtractor.class);
-  @Autowired
-  private RuleRepository ruleDao;
+  private final RuleRepository ruleDao;
   private ExtractTriple extractTriple;
 
-    @PostConstruct
+  @Autowired
+  public RuleBasedTripleExtractor(RuleRepository ruleDao) {
+    this.ruleDao = ruleDao;
+  }
+
+  @PostConstruct
     void init() {
       List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
         List<Rule> rules = ruleDao.findAll();
@@ -47,13 +51,11 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
       logger.info("rules loaded");
     }
 
-    TextProcess tp = new TextProcess();
+  private TextProcess tp = new TextProcess();
     @Override
     public List<RawTriple> extract(String source, String version, String inputText) {
         List<RawTriple> result = new ArrayList<>();
-
         final List<String> lines = SentenceTokenizer.SentenceSplitterRaw(inputText);
-
         for (String line : lines) {
             Annotation annotation = new Annotation(line);
             tp.preProcess(annotation);
@@ -65,12 +67,7 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
     @Override
     public List<RawTriple> extract(String source, String version, List<List<ResolvedEntityToken>> tokens) {
         List<RawTriple> result = new ArrayList<>();
-
-        // for (List<ResolvedEntityToken> sentence : tokens) {
-        result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(tokens)));
-
-
-
+      result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(tokens), tokens));
         return result;
     }
 
