@@ -1,3 +1,9 @@
+/*
+ * Farsi Knowledge Graph Project
+ *  Iran University of Science and Technology (Year 2017)
+ *  Developed by Mohammad Abdous.
+ */
+
 package ir.ac.iust.dml.kg.raw.rulebased;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
@@ -21,11 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Mohammad Abdous md.abdous@gmail.com
- * @version 1.1.0
- * @since 5/4/17 11:51 AM
- */
 public class ExtractTriple {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SentenceTokenizer.class);

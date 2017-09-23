@@ -1,3 +1,9 @@
+/*
+ * Farsi Knowledge Graph Project
+ *  Iran University of Science and Technology (Year 2017)
+ *  Developed by Mohammad Abdous.
+ */
+
 package ir.ac.iust.dml.kg.raw.rulebased;
 
 import edu.stanford.nlp.pipeline.Annotation;
@@ -12,11 +18,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Mohammad Abdous md.abdous@gmail.com
- * @version 1.1.0
- * @since 5/14/17 10:27 PM
- */
 public class Main {
   public static void main(String[] args) throws IOException {
 
@@ -53,41 +54,41 @@ public class Main {
 
     TripleJsonProducer.write(tripleList, Paths.get(outputPath));
   }
-    public static void testInNews() throws IOException {
 
-        String inputPath = "D:\\extract triple1\\newsCorpus\\news1.csv";
-        String outputPath = "outputTxt.txt";
-        String rulesPath = "tripleRules.txt";
+  public static void testInNews() throws IOException {
+
+    String inputPath = "D:\\extract triple1\\newsCorpus\\news1.csv";
+    String outputPath = "outputTxt.txt";
+    String rulesPath = "tripleRules.txt";
 
 
+    if (Files.notExists(Paths.get(inputPath)))
+      Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
+    if (Files.notExists(Paths.get(rulesPath)))
+      Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
 
-        if (Files.notExists(Paths.get(inputPath)))
-            Files.copy(ExtractTriple.class.getResourceAsStream("/inputText.txt"), Paths.get(inputPath));
-        if (Files.notExists(Paths.get(rulesPath)))
-            Files.copy(ExtractTriple.class.getResourceAsStream("/tripleRules.txt"), Paths.get(rulesPath));
-
-        List<String> lines = null;
-        try {
-            lines = FileUtils.readLines(new File(inputPath), "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        List<RawTriple> tripleList = new ArrayList<RawTriple>();
-        TextProcess tp = new TextProcess();
-        ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
-        assert extractTriple != null;
-        assert lines != null;
-        double index=0;
-        for (String line : lines) {
-            System.out.println(line);
-            Annotation annotation = new Annotation(line);
-            tp.preProcess(annotation);
-            tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
-            System.out.println(index);
-            index++;
-        }
-
-        TripleJsonProducer.write(tripleList, Paths.get(outputPath));
+    List<String> lines = null;
+    try {
+      lines = FileUtils.readLines(new File(inputPath), "UTF-8");
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+
+    List<RawTriple> tripleList = new ArrayList<RawTriple>();
+    TextProcess tp = new TextProcess();
+    ExtractTriple extractTriple = RuleFileLoader.load(rulesPath);
+    assert extractTriple != null;
+    assert lines != null;
+    double index=0;
+    for (String line : lines) {
+      System.out.println(line);
+      Annotation annotation = new Annotation(line);
+      tp.preProcess(annotation);
+      tripleList.addAll(extractTriple.extractTripleFromAnnotation(annotation));
+      System.out.println(index);
+      index++;
+    }
+
+    TripleJsonProducer.write(tripleList, Paths.get(outputPath));
+  }
 }

@@ -1,3 +1,9 @@
+/*
+ * Farsi Knowledge Graph Project
+ *  Iran University of Science and Technology (Year 2017)
+ *  Developed by Mohammad Abdous.
+ */
+
 package ir.ac.iust.dml.kg.raw.rulebased;
 
 import edu.stanford.nlp.pipeline.Annotation;
@@ -18,9 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by mohammad on 7/23/2017.
- */
 @Service
 public class RuleBasedTripleExtractor implements RawTripleExtractor {
 
@@ -34,41 +37,42 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
   }
 
   @PostConstruct
-    void init() {
-      List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
-        List<Rule> rules = ruleDao.findAll();
-        for (Rule rule : rules) {
-            RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
-            ruleAndPredicate.setRule(rule.getRule());
-            ruleAndPredicate.setPredicate(rule.getPredicate());
-            mainRuleAndPredicates.add(ruleAndPredicate);
-        }
-      try {
-        extractTriple = new ExtractTriple(mainRuleAndPredicates);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-      logger.info("rules loaded");
+  void init() {
+    List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
+    List<Rule> rules = ruleDao.findAll();
+    for (Rule rule : rules) {
+      RuleAndPredicate ruleAndPredicate = new RuleAndPredicate();
+      ruleAndPredicate.setRule(rule.getRule());
+      ruleAndPredicate.setPredicate(rule.getPredicate());
+      mainRuleAndPredicates.add(ruleAndPredicate);
     }
+    try {
+      extractTriple = new ExtractTriple(mainRuleAndPredicates);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    logger.info("rules loaded");
+  }
 
   private TextProcess tp = new TextProcess();
-    @Override
-    public List<RawTriple> extract(String source, String version, String inputText) {
-        List<RawTriple> result = new ArrayList<>();
-        final List<String> lines = SentenceTokenizer.SentenceSplitterRaw(inputText);
-        for (String line : lines) {
-            Annotation annotation = new Annotation(line);
-            tp.preProcess(annotation);
-            result.addAll(extractTriple.extractTripleFromAnnotation(annotation));
-        }
-        return result;
-    }
 
-    @Override
-    public List<RawTriple> extract(String source, String version, List<List<ResolvedEntityToken>> tokens) {
-        List<RawTriple> result = new ArrayList<>();
-      result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(tokens), tokens));
-        return result;
+  @Override
+  public List<RawTriple> extract(String source, String version, String inputText) {
+    List<RawTriple> result = new ArrayList<>();
+    final List<String> lines = SentenceTokenizer.SentenceSplitterRaw(inputText);
+    for (String line : lines) {
+      Annotation annotation = new Annotation(line);
+      tp.preProcess(annotation);
+      result.addAll(extractTriple.extractTripleFromAnnotation(annotation));
     }
+    return result;
+  }
+
+  @Override
+  public List<RawTriple> extract(String source, String version, List<List<ResolvedEntityToken>> tokens) {
+    List<RawTriple> result = new ArrayList<>();
+    result.addAll(extractTriple.extractTripleFromAnnotation(tp.getAnnotationFromEntityTokens(tokens), tokens));
+    return result;
+  }
 
 }
