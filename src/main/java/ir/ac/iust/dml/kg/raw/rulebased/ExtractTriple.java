@@ -9,6 +9,7 @@ package ir.ac.iust.dml.kg.raw.rulebased;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.tokensregex.Env;
+import edu.stanford.nlp.ling.tokensregex.SequenceMatchResult;
 import edu.stanford.nlp.ling.tokensregex.TokenSequenceMatcher;
 import edu.stanford.nlp.ling.tokensregex.TokenSequencePattern;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -19,11 +20,10 @@ import ir.ac.iust.dml.kg.raw.extractor.IobType;
 import ir.ac.iust.dml.kg.raw.extractor.ResolvedEntityToken;
 import ir.ac.iust.dml.kg.raw.extractor.ResolvedEntityTokenResource;
 import ir.ac.iust.dml.kg.raw.triple.RawTriple;
-import ir.ac.iust.dml.kg.resource.extractor.client.ExtractorClient;
+import ir.ac.iust.dml.kg.raw.utils.URIs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,15 +33,21 @@ public class ExtractTriple {
   private final List<RuleAndPredicate> rules;
   private EnhancedEntityExtractor enhancedEntityExtractor;
 
-  public ExtractTriple(List<RuleAndPredicate> rules) throws IOException {
-    ExtractorClient client = new ExtractorClient("http://194.225.227.161:8094");
+  public ExtractTriple(List<RuleAndPredicate> rules) {
     this.rules = rules;
+    List<RuleAndPredicate> notCompiledRules = new ArrayList<>();
     Env environment = TokenSequencePattern.getNewEnv();
     for (RuleAndPredicate rule : rules) {
-      rule.setPattern(TokenSequencePattern.compile(environment, rule.getRule()));
+      try {
+        final TokenSequencePattern compiled = TokenSequencePattern.compile(environment, rule.getRule());
+        rule.setPattern(compiled);
+      } catch (Throwable ignored) {
+        // compile error
+        notCompiledRules.add(rule);
+      }
     }
     enhancedEntityExtractor = new EnhancedEntityExtractor();
-
+    this.rules.removeAll(notCompiledRules);
   }
 
   private List<List<ResolvedEntityToken>> fkgFy(String text) {
@@ -68,7 +74,7 @@ public class ExtractTriple {
       while (matcher.find()) {
         RawTriple triple = getTriple(matcher);
         triple.setPredicate(rule.getPredicate());
-        triple.setSourceUrl(sentence.get(CoreAnnotations.TextAnnotation.class));
+        triple.setRawText(sentence.get(CoreAnnotations.TextAnnotation.class));
         triple.setModule("RuleBased");
         triple.setExtractionTime(System.currentTimeMillis());
         triples.add(triple);
@@ -92,7 +98,7 @@ public class ExtractTriple {
             coreLabels.get(i).setNER("B_" + matchedResourceType);
           else if (matchedResource.getIobType().equals(IobType.Inside))
             coreLabels.get(i).setNER("I_" + matchedResourceType);
-
+          coreLabels.get(i).set(ResourceTagAnnotation.class, matchedResource.getResource().getIri());
         }
       }
     } catch (Exception ex) {
@@ -123,9 +129,22 @@ public class ExtractTriple {
 
   private RawTriple getTriple(TokenSequenceMatcher matcher) {
     RawTriple triple = new RawTriple();
-    String url = "fkgr:";
-    triple.setSubject(url + matcher.group("$subject"));
-    triple.setObject(url + matcher.group("$object"));
+    String url = URIs.INSTANCE.getFkgResourcePrefix() + ":";
+    final SequenceMatchResult.MatchedGroupInfo<CoreMap> subjectInfo = matcher.groupInfo("$subject");
+    final CoreMap subjectToken = subjectInfo.nodes.iterator().next();
+    if (subjectToken.containsKey(ResourceTagAnnotation.class))
+      triple.setSubject(URIs.INSTANCE.replaceAllPrefixesInString(subjectToken.get(ResourceTagAnnotation.class)));
+    else triple.setSubject(url + subjectInfo.text);
+
+    final SequenceMatchResult.MatchedGroupInfo<CoreMap> objectInfo = matcher.groupInfo("$object");
+//    final CoreMap objectToken = objectInfo.nodes.iterator().next();
+//    if(objectToken.containsKey(ResourceTagAnnotation.class))
+//      triple.setObject(URIs.INSTANCE.replaceAllPrefixesInString(objectToken.get(ResourceTagAnnotation.class)));
+//    else triple.setObject(objectInfo.text);
+    triple.setObject(objectInfo.text);
+
+    final String objectEnd = matcher.group("$object2");
+    if (objectEnd != null) triple.setObject(objectInfo.text + " " + objectEnd);
     //triple.setSubject(matcher.groupInfo("$subject").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
     // triple.setSubject(matcher.groupInfo("$object").nodes.get(0).get(CoreAnnotations.AbbrAnnotation.class));
     triple.setAccuracy(0.1);

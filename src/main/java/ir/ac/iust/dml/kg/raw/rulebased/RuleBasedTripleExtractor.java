@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
   }
 
   @PostConstruct
-  void init() {
+  public void init() {
     List<RuleAndPredicate> mainRuleAndPredicates = new ArrayList<>();
     List<Rule> rules = ruleDao.findAll();
     for (Rule rule : rules) {
@@ -46,11 +45,7 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
       ruleAndPredicate.setPredicate(rule.getPredicate());
       mainRuleAndPredicates.add(ruleAndPredicate);
     }
-    try {
-      extractTriple = new ExtractTriple(mainRuleAndPredicates);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    extractTriple = new ExtractTriple(mainRuleAndPredicates);
     logger.info("rules loaded");
   }
 
