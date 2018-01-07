@@ -76,7 +76,7 @@ public class ExtractTriple {
         triple.setPredicate(rule.getPredicate());
         triple.setRawText(sentence.get(CoreAnnotations.TextAnnotation.class));
         triple.setModule("RuleBased");
-        triple.setExtractionTime(System.currentTimeMillis());
+        triple.setAccuracy(0.95);
         triples.add(triple);
       }
     }
