@@ -8,7 +8,7 @@ fkgo:deathAge ~    (?$subject [{ner:/.+Person.+/}]+) [{word:/در/}] [{word:/س�
 fkgo:job ~         (?$subject [{ner:/.+Person.+/}]+) (?$object [{word:/سردبیر|دبیر|نویسنده|ناشر/}]) [{word:/.+/}]+ [{ner:/.+Newspaper.+/}] [{word:/.+/}]+
 fkgo:office ~      (?$subject [{ner:/.+Person.+/}]+) [{word:/سردبیر|دبیر|نویسنده|ناشر/}] [{word:/.+/}]+ (?$object [{ner:/.+Newspaper.+/}]) [{word:/.+/}]+
 fkgo:stadium ~     (?$subject [{ner:/.+Sportsteam.+|.+Country.*|.+Teamsport.*/}]+) [{word:/.+/}]* [{word:/در/}] [{word:/ورزشگاه/}] [{word:/خانگی/}]? [{word:/خود/}] [{word:/.+/}]* (?$object [{ner:/.+Stadium.*/}]+) [{word:/.+/}]*  [{word:/دیدار/}]
-fkgo:penName ~     [{word:/تخلص|تخلصِ/}] (?$subject[{ner:/.+Person.+/}]+) (?$object [{word:/(.)+/}]+) [{word:/است|می‌باشد/}]
+fkgo:penName ~     [{word:/تخلص|مستعار|تخلصِ/}] (?$subject[{ner:/.+Person.+/}]+) [{word:/در/}]? [{word:/کشور|روستا|شهر/}]? [{ner:/.+Settlement.+/}]? [{word:/و/}]?  [{ner:/.+Country.+/}]? (?$object [{word:/(.)+/}]+) [{word:/است|می‌باشد/}]
 fkgo:fullName ~    [{word:/نام|نامِ/}] [{word:/کامل|کاملِ/}] (?$subject[{ner:/.+Person.+/}]+) (?$object [{word:/(.)+/}]+) [{word:/و/}]
 fkgo:deathDate ~   (?$subject[{ner:/.+Person.+/}]+) [{word:/\(/}] [{word:/.+/}] [{word:/–/}] (?$object[{word:/.+/}] [{word:/هجری/}] [{word:/قمری|شمسی/}]) [{word:/\)/}]
 fkgo:birthDate ~   (?$subject[{ner:/.+Person.+/}]+) [{word:/\(/}] (?$object[{word:/.+/}]) [{word:/–/}] [{word:/.+/}] (?$object2 [{word:/هجری/}] [{word:/قمری|شمسی/}]) [{word:/\)/}]
