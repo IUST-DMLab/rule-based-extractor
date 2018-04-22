@@ -53,7 +53,7 @@ public class ExtractTriple {
   private List<List<ResolvedEntityToken>> fkgFy(String text) {
     if (enhancedEntityExtractor == null) enhancedEntityExtractor = new EnhancedEntityExtractor();
     final List<List<ResolvedEntityToken>> resolved = enhancedEntityExtractor.extract(text);
-    enhancedEntityExtractor.disambiguateByContext(resolved, 3, 0.0011f);
+    enhancedEntityExtractor.disambiguateByContext(resolved, 3, 0.0001f);
     enhancedEntityExtractor.resolveByName(resolved);
     enhancedEntityExtractor.resolvePronouns(resolved);
     return resolved;
