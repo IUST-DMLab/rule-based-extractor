@@ -7,6 +7,7 @@
 package ir.ac.iust.dml.kg.raw.rulebased;
 
 import edu.stanford.nlp.pipeline.Annotation;
+import ir.ac.iust.dml.kg.raw.Normalizer;
 import ir.ac.iust.dml.kg.raw.SentenceTokenizer;
 import ir.ac.iust.dml.kg.raw.TextProcess;
 import ir.ac.iust.dml.kg.raw.extractor.ResolvedEntityToken;
@@ -53,6 +54,7 @@ public class RuleBasedTripleExtractor implements RawTripleExtractor {
 
   @Override
   public List<RawTriple> extract(String source, String version, String inputText) {
+    inputText = Normalizer.removeBrackets(Normalizer.normalize(inputText));
     List<RawTriple> result = new ArrayList<>();
     final List<String> lines = SentenceTokenizer.SentenceSplitterRaw(inputText);
     for (String line : lines) {
