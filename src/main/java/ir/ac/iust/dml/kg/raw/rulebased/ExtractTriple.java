@@ -25,7 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ExtractTriple {
 
@@ -114,7 +116,7 @@ public class ExtractTriple {
       ResolvedEntityTokenResource resolvedEntityTokenResource = ambiguities.get(i);
       if (i <= 1 && resolvedEntityTokenResource.getMainClass() != null)
         builder.append(resolvedEntityTokenResource.getMainClass()
-            .replace("http://fkg.iust.ac.ir/ontology/", "")).append(',');
+                .replace("http://fkg.iust.ac.ir/ontology/", "")).append(',');
     }
     for (String classStr : matchedResource.getResource().getClasses()) {
 
@@ -123,8 +125,18 @@ public class ExtractTriple {
 
     //if (builder.length() > 0) builder.setLength(builder.length() - 1);
     builder.append(matchedResource.getResource().getMainClass()
-        .replace("http://fkg.iust.ac.ir/ontology/", ""));
+            .replace("http://fkg.iust.ac.ir/ontology/", ""));
     return builder.toString();
+  }
+
+  private String getIri(List<? extends CoreMap> nodes) {
+    final Set<String> iris = new HashSet<>();
+    for(CoreMap c: nodes) {
+      final String iri = c.get(ResourceTagAnnotation.class);
+      if(iri == null) return null;
+      iris.add(iri);
+    }
+    return iris.size() == 1 ? iris.iterator().next() : null;
   }
 
   private RawTriple getTriple(TokenSequenceMatcher matcher) {
@@ -141,7 +153,8 @@ public class ExtractTriple {
 //    if(objectToken.containsKey(ResourceTagAnnotation.class))
 //      triple.setObject(URIs.INSTANCE.replaceAllPrefixesInString(objectToken.get(ResourceTagAnnotation.class)));
 //    else triple.setObject(objectInfo.text);
-    triple.setObject(objectInfo.text);
+    String iri = getIri(objectInfo.nodes);
+    triple.setObject(iri != null ? URIs.INSTANCE.replaceAllPrefixesInString(iri) : objectInfo.text);
 
     final String objectEnd = matcher.group("$object2");
     if (objectEnd != null) triple.setObject(objectInfo.text + " " + objectEnd);
@@ -167,7 +180,7 @@ public class ExtractTriple {
       int sentenceLength = sentence.get(CoreAnnotations.TextAnnotation.class).length();
       if (sentenceLength > 20 && sentenceLength < 200) {
         sentenceTriples = extractTripleFromSentence(sentence,
-            preResolvedTokens != null ? preResolvedTokens.get(i) : null);
+                preResolvedTokens != null ? preResolvedTokens.get(i) : null);
         if (sentenceTriples.size() != 0)
           triples.addAll(sentenceTriples);
       }
