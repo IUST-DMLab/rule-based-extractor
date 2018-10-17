@@ -56,6 +56,7 @@ public class ExtractTriple {
     if (enhancedEntityExtractor == null) enhancedEntityExtractor = new EnhancedEntityExtractor();
     final List<List<ResolvedEntityToken>> resolved = enhancedEntityExtractor.extract(text);
     enhancedEntityExtractor.disambiguateByContext(resolved, 3, 0.0001f);
+    enhancedEntityExtractor.integrateNER(resolved);
     enhancedEntityExtractor.resolveByName(resolved);
     enhancedEntityExtractor.resolvePronouns(resolved);
     return resolved;
